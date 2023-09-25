@@ -1,2 +1,2 @@
-# MobileGame
+# GameMobile
 GameMobile
