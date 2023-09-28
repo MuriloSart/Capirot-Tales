@@ -8,13 +8,15 @@ public class Board : MonoBehaviour
     public int height;
     public GameObject tilePrefab;
     private BackgroundTile[,] allTiles;
-
+    public GameObject[,] allBeans;
+    public GameObject[] beans;
     void Start()
     {
         width = 5;
         height = 8;
 
         allTiles = new BackgroundTile[width, height];  
+        allBeans = new GameObject[width, height];
         GenerateMap();
     }
 
@@ -24,7 +26,12 @@ public class Board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                Instantiate(tilePrefab, new Vector2(transform.position.x + i, transform.position.y + j), Quaternion.identity);
+                GameObject tile = Instantiate(tilePrefab, new Vector2(transform.position.x + i, transform.position.y + j), Quaternion.identity);
+                tile.name = (i + "," + j);
+
+                GameObject bean = Instantiate(beans[Random.Range(0, beans.Length)], tile.transform.position, Quaternion.identity);
+                bean.name = tile.name;
+                allBeans[i, j] = bean;
             }
         }
     }

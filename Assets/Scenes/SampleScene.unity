@@ -247,6 +247,12 @@ MonoBehaviour:
   width: 5
   height: 8
   tilePrefab: {fileID: 3453375620967152026, guid: 3bb1738d550c3614bbd2090fe6539270, type: 3}
+  beans:
+  - {fileID: 7352543048360703448, guid: 0efd096f2f35ef341948fb56c50de55c, type: 3}
+  - {fileID: 7352543048360703448, guid: 572712fe5e7d1d34c9b6047b70e7bd38, type: 3}
+  - {fileID: 7352543048360703448, guid: 908107da180214145b131a20c6c57678, type: 3}
+  - {fileID: 7352543048360703448, guid: d61f423ed922f344ea89f43fe15902cc, type: 3}
+  - {fileID: 7352543048360703448, guid: ddfb739de8d8f624989f51a827666c59, type: 3}
 --- !u!4 &820282944
 Transform:
   m_ObjectHideFlags: 0
