@@ -28,7 +28,6 @@ public class Board : MonoBehaviour
             {
                 GameObject tile = Instantiate(tilePrefab, new Vector2(transform.position.x + i, transform.position.y + j), Quaternion.identity);
                 tile.name = (i + "," + j);
-
                 GameObject bean = Instantiate(beans[Random.Range(0, beans.Length)], tile.transform.position, Quaternion.identity);
                 bean.name = tile.name;
                 allBeans[i, j] = bean;
