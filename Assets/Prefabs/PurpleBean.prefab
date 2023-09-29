@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8260208413803722069}
   m_Layer: 0
   m_Name: PurpleBean
-  m_TagString: Untagged
+  m_TagString: PurpleBean
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -133,3 +133,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb746d18105c5e848b72367b325fd2ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  board: {fileID: 0}
+  column: 0
+  row: 0
+  matched: 1
+  sr: {fileID: 1216517824428992309}
+  circleCollider: {fileID: 1419252443190786433}

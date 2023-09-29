@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,6 +10,7 @@ public class BeanScript : MonoBehaviour
     private Vector2 initialTouchPos;
     private Vector2 finalTouchPos;
     private float moveAngle = 0;
+    [SerializeField]
     private Board board;
 
     [SerializeField]
@@ -16,19 +18,27 @@ public class BeanScript : MonoBehaviour
     [SerializeField]
     private int row;
 
+    public bool matched;
 
+    [SerializeField]
+    private SpriteRenderer sr;
+    [SerializeField]
+    private CircleCollider2D circleCollider;
 
     private void Start()
     {
         column = (int)transform.position.x;
         row = (int)transform.position.y;
+        matched = false;
+
+        board = FindObjectOfType<Board>();
     }
 
     private void OnMouseDown()
     {
         initialTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         board = FindObjectOfType<Board>();
-
+        
 
     }
 
@@ -47,8 +57,15 @@ public class BeanScript : MonoBehaviour
 
 
     private void Update()
-    {
+    {       
         transform.position = Vector2.Lerp(transform.position, new Vector2(column, row), 8 * Time.deltaTime);
+        if(matched)
+        {
+            sr.color = new Color(1, 1, 1, 0.2f);
+            circleCollider.enabled = false;  
+        }
+
+        FindMatch();
     }
 
     public void MoveBean()
@@ -77,7 +94,7 @@ public class BeanScript : MonoBehaviour
             bean = board.allBeans[column - 1, row].gameObject.GetComponent<BeanScript>();
         }
 
-        if (bean != null)
+        if (bean != null && !bean.matched)
         {
         
             int targetColumn = bean.column;
@@ -104,5 +121,41 @@ public class BeanScript : MonoBehaviour
         column = (int)newPosition.x;
         row = (int)newPosition.y;
     }
+
+    public void FindMatch()
+    {
+        if (matched) return;
+
+        if(column > 0 && column <  board.width - 1) {
+
+            GameObject leftBean = board.allBeans[column - 1, row];
+            GameObject rightBean = board.allBeans[column + 1, row];
+
+            if (leftBean.tag == this.gameObject.tag && rightBean.gameObject.tag == this.tag)
+            {
+                matched = true;
+                leftBean.GetComponent<BeanScript>().matched = true;
+                rightBean.GetComponent<BeanScript>().matched = true;
+            }
+        }
+
+        if (row > 0 && row < board.height - 1)
+        {
+
+            GameObject upperBean = board.allBeans[column, row + 1];
+            GameObject bottomBean = board.allBeans[column, row - 1];
+
+            if (upperBean.tag == this.gameObject.tag && bottomBean.gameObject.tag == this.tag)
+            {
+                matched = true;
+                upperBean.GetComponent<BeanScript>().matched = true;
+                bottomBean.GetComponent<BeanScript>().matched = true;
+            }
+        }
+
+
+    }
+
+    
 
 }
