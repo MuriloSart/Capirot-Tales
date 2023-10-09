@@ -25,11 +25,21 @@ public class BeanScript : MonoBehaviour
     [SerializeField]
     private CircleCollider2D circleCollider;
 
+    private BeanScript otherBean;
+    [SerializeField]
+    private int previousColumn;
+    [SerializeField]
+    private int previousRow;
+
+    IEnumerator matchAfterMove = null;
+
     private void Start()
     {
         column = (int)transform.position.x;
         row = (int)transform.position.y;
         matched = false;
+        previousColumn = column;
+        previousRow = row;
 
         board = FindObjectOfType<Board>();
     }
@@ -57,8 +67,17 @@ public class BeanScript : MonoBehaviour
 
 
     private void Update()
-    {       
-        transform.position = Vector2.Lerp(transform.position, new Vector2(column, row), 8 * Time.deltaTime);
+    {
+
+        float distanceToTargetPos = Vector2.Distance(transform.position, new Vector2(column, row));
+        name = (int)transform.position.x + "," + (int)transform.position.y;
+
+        if (distanceToTargetPos > 0.01f)
+        {
+            transform.position = Vector2.Lerp(transform.position, new Vector2(column, row), 8 * Time.deltaTime);
+        }
+      
+        
         if(matched)
         {
             sr.color = new Color(1, 1, 1, 0.2f);
@@ -104,15 +123,22 @@ public class BeanScript : MonoBehaviour
             board.allBeans[bean.column, bean.row] = gameObject;
             board.allBeans[column, row] = bean.gameObject;
 
-            bean.NewPosition(new Vector2(column, row));
-            NewPosition(new Vector2(targetColumn, targetRow));
-            string saveName = bean.name;
-            bean.name = name;
-            name = saveName;
+            bean.column = column;
+            bean.row = row;
+            column = targetColumn;
+            row = targetRow;
+  
 
-           
-
+            otherBean = bean;
+            
         }
+        if(matchAfterMove == null)
+        {
+            matchAfterMove = CheckMatchAfterMove();
+            StartCoroutine(matchAfterMove);
+        }
+
+        
 
     }
 
@@ -120,6 +146,33 @@ public class BeanScript : MonoBehaviour
     {
         column = (int)newPosition.x;
         row = (int)newPosition.y;
+    }
+
+    IEnumerator CheckMatchAfterMove()
+    {
+        yield return new WaitForSeconds(.5f);
+
+        if(otherBean != null && !otherBean.matched && !matched)
+        {
+            board.allBeans[otherBean.column, otherBean.row] = gameObject;
+            board.allBeans[column, row] = otherBean.gameObject;
+
+            otherBean.row = row;
+            otherBean.column = column;
+            row = previousRow;
+            column  = previousColumn;
+
+        }
+        else
+        {
+            previousColumn = column;
+            previousRow = row;
+            otherBean.previousColumn = otherBean.column;
+            otherBean.previousRow = otherBean.row;
+
+        }
+        otherBean = null;
+        matchAfterMove = null;
     }
 
     public void FindMatch()
@@ -142,8 +195,8 @@ public class BeanScript : MonoBehaviour
         if (row > 0 && row < board.height - 1)
         {
 
-            GameObject upperBean = board.allBeans[column, row + 1];
-            GameObject bottomBean = board.allBeans[column, row - 1];
+            BeanScript upperBean = board.allBeans[column, row + 1].GetComponent<BeanScript>();
+            BeanScript bottomBean = board.allBeans[column, row - 1].GetComponent<BeanScript>();
 
             if (upperBean.tag == this.gameObject.tag && bottomBean.gameObject.tag == this.tag)
             {
