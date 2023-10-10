@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -33,6 +34,8 @@ public class BeanScript : MonoBehaviour
 
     IEnumerator matchAfterMove = null;
 
+    bool lastMatch = false;
+
     private void Start()
     {
         column = (int)transform.position.x;
@@ -42,6 +45,7 @@ public class BeanScript : MonoBehaviour
         previousRow = row;
 
         board = FindObjectOfType<Board>();
+        name = (int)transform.position.x + "," + (int)transform.position.y;
     }
 
     private void OnMouseDown()
@@ -56,13 +60,13 @@ public class BeanScript : MonoBehaviour
     {
         finalTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         // Só efetua o movimento caso a distância seja maior do que 0.15 unidades
-        if(Vector2.Distance(initialTouchPos, finalTouchPos) > 0.15f)AngleCalc();
+        if(Vector2.Distance(initialTouchPos, finalTouchPos) > 0.15f && matchAfterMove == null && !board.beanMoving)AngleCalc();
     }
 
     public void AngleCalc()
     {
         moveAngle = Mathf.Atan2(finalTouchPos.y - initialTouchPos.y, finalTouchPos.x - initialTouchPos.x) * 180 / Mathf.PI;
-        MoveBean();
+        if(Vector2.Distance(transform.position, new Vector2(column, row)) < 0.15f)MoveBean();
     }
 
 
@@ -70,7 +74,7 @@ public class BeanScript : MonoBehaviour
     {
 
         float distanceToTargetPos = Vector2.Distance(transform.position, new Vector2(column, row));
-        name = (int)transform.position.x + "," + (int)transform.position.y;
+        
 
         if (distanceToTargetPos > 0.01f)
         {
@@ -115,37 +119,28 @@ public class BeanScript : MonoBehaviour
 
         if (bean != null && !bean.matched)
         {
-        
-            int targetColumn = bean.column;
-            int targetRow = bean.row;
-
-            //Troca a posição dos gameobjects na matriz do board
-            board.allBeans[bean.column, bean.row] = gameObject;
-            board.allBeans[column, row] = bean.gameObject;
-
-            bean.column = column;
-            bean.row = row;
-            column = targetColumn;
-            row = targetRow;
-  
-
+            board.beanMoving = true;
             otherBean = bean;
-            
+
+            int otherColumn = otherBean.column;
+            int otherRow = otherBean.row;
+
+            otherBean.MoveToPosition(this);
+
+            MoveToPosition(otherColumn, otherRow);
+
+
+            if (matchAfterMove == null)
+            {
+                matchAfterMove = CheckMatchAfterMove();
+                StartCoroutine(matchAfterMove);
+            }
+
         }
-        if(matchAfterMove == null)
-        {
-            matchAfterMove = CheckMatchAfterMove();
-            StartCoroutine(matchAfterMove);
-        }
+        
 
         
 
-    }
-
-    public void NewPosition(Vector2 newPosition)
-    {
-        column = (int)newPosition.x;
-        row = (int)newPosition.y;
     }
 
     IEnumerator CheckMatchAfterMove()
@@ -173,11 +168,41 @@ public class BeanScript : MonoBehaviour
         }
         otherBean = null;
         matchAfterMove = null;
+        board.beanMoving = false;
     }
+
+
+    public void MoveToPosition(BeanScript target)
+    {
+
+        name = target.column + "," + target.row;
+
+        column = target.column;
+        row = target.row;
+
+        board.allBeans[target.column, target.row] = gameObject;
+
+        
+
+
+    }
+
+
+    public void MoveToPosition(int column, int row)
+    {
+        name = column + "," + row;
+
+        this.column = column;
+        this.row = row;
+
+        board.allBeans[column, row] = gameObject;
+    }
+
+
 
     public void FindMatch()
     {
-        if (matched) return;
+        if (matched && lastMatch == true) return;
 
         if(column > 0 && column <  board.width - 1) {
 
@@ -205,6 +230,8 @@ public class BeanScript : MonoBehaviour
                 bottomBean.GetComponent<BeanScript>().matched = true;
             }
         }
+
+        if (matched) lastMatch = true;
 
 
     }

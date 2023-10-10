@@ -10,6 +10,8 @@ public class Board : MonoBehaviour
     private BackgroundTile[,] allTiles;
     public GameObject[,] allBeans;
     public GameObject[] beans;
+
+    public bool beanMoving = false;
     void Start()
     {
         width = 5;
