@@ -46,27 +46,29 @@ public class BeanScript : MonoBehaviour
 
         board = FindObjectOfType<Board>();
         name = (int)transform.position.x + "," + (int)transform.position.y;
+
     }
 
     private void OnMouseDown()
     {
         initialTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         board = FindObjectOfType<Board>();
-        
-
+       
     }
 
     private void OnMouseUp()
     {
         finalTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         // Só efetua o movimento caso a distância seja maior do que 0.15 unidades
-        if(Vector2.Distance(initialTouchPos, finalTouchPos) > 0.15f && matchAfterMove == null && !board.beanMoving)AngleCalc();
+        if(Vector2.Distance(initialTouchPos, finalTouchPos) > 0.15f && matchAfterMove == null && !board.beanMoving) 
+            AngleCalc();
     }
 
     public void AngleCalc()
     {
         moveAngle = Mathf.Atan2(finalTouchPos.y - initialTouchPos.y, finalTouchPos.x - initialTouchPos.x) * 180 / Mathf.PI;
-        if(Vector2.Distance(transform.position, new Vector2(column, row)) < 0.15f)MoveBean();
+        if(Vector2.Distance(transform.position, new Vector2(column, row)) < 0.15f) 
+            MoveBean();
     }
 
 
@@ -91,8 +93,9 @@ public class BeanScript : MonoBehaviour
         FindMatch();
     }
 
-    public void MoveBean()
+    public void MoveBean() //Mexendo o Bean ao de acordo com o angulo que o mouse arrasta
     {
+
         BeanScript bean = null;
 
         if (moveAngle > -45 && moveAngle <= 45 && column < board.width - 1)
@@ -137,9 +140,6 @@ public class BeanScript : MonoBehaviour
             }
 
         }
-        
-
-        
 
     }
 
@@ -182,9 +182,6 @@ public class BeanScript : MonoBehaviour
 
         board.allBeans[target.column, target.row] = gameObject;
 
-        
-
-
     }
 
 
@@ -209,33 +206,36 @@ public class BeanScript : MonoBehaviour
             GameObject leftBean = board.allBeans[column - 1, row];
             GameObject rightBean = board.allBeans[column + 1, row];
 
-            if (leftBean.tag == this.gameObject.tag && rightBean.gameObject.tag == this.tag)
+            if(leftBean != null && rightBean != null) 
             {
-                matched = true;
-                leftBean.GetComponent<BeanScript>().matched = true;
-                rightBean.GetComponent<BeanScript>().matched = true;
+                if (leftBean.tag == this.gameObject.tag && rightBean.gameObject.tag == this.tag)
+                {
+                    matched = true;
+                    leftBean.GetComponent<BeanScript>().matched = true;
+                    rightBean.GetComponent<BeanScript>().matched = true;
+                }
             }
         }
 
         if (row > 0 && row < board.height - 1)
         {
 
-            BeanScript upperBean = board.allBeans[column, row + 1].GetComponent<BeanScript>();
-            BeanScript bottomBean = board.allBeans[column, row - 1].GetComponent<BeanScript>();
+            GameObject upperBean = board.allBeans[column, row + 1];
+            GameObject bottomBean = board.allBeans[column, row - 1];
 
-            if (upperBean.tag == this.gameObject.tag && bottomBean.gameObject.tag == this.tag)
+            if (upperBean != null && bottomBean != null)
             {
-                matched = true;
-                upperBean.GetComponent<BeanScript>().matched = true;
-                bottomBean.GetComponent<BeanScript>().matched = true;
-            }
+                if (upperBean.tag == this.gameObject.tag && bottomBean.gameObject.tag == this.tag)
+                {
+                    matched = true;
+                    upperBean.GetComponent<BeanScript>().matched = true;
+                    bottomBean.GetComponent<BeanScript>().matched = true;
+                }
+            }  
         }
 
         if (matched) lastMatch = true;
 
-
     }
-
-    
 
 }
