@@ -14,10 +14,8 @@ public class BeanScript : MonoBehaviour
     [SerializeField]
     private Board board;
 
-    [SerializeField]
-    private int column;
-    [SerializeField]
-    private int row;
+    public int column;
+    public int row;
 
     public bool matched;
 
@@ -46,53 +44,58 @@ public class BeanScript : MonoBehaviour
 
         board = FindObjectOfType<Board>();
         name = (int)transform.position.x + "," + (int)transform.position.y;
+
+    }
+
+    private void Update()
+    {
+
+        float distanceToTargetPos = Vector2.Distance(transform.position, new Vector2(column, row));
+
+
+        if (distanceToTargetPos > 0.01f)
+        {
+            transform.position = Vector2.Lerp(transform.position, new Vector2(column, row), 8 * Time.deltaTime);
+            if (board.allBeans[column, row] != this.gameObject)
+            {
+                board.allBeans[column, row] = this.gameObject;
+            }
+        }
+
+        if (matched)
+        {
+            sr.color = new Color(1, 1, 1, 0.2f);
+            circleCollider.enabled = false;
+        }
+
+        FindMatch();
     }
 
     private void OnMouseDown()
     {
         initialTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         board = FindObjectOfType<Board>();
-        
-
+       
     }
 
     private void OnMouseUp()
     {
         finalTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         // Só efetua o movimento caso a distância seja maior do que 0.15 unidades
-        if(Vector2.Distance(initialTouchPos, finalTouchPos) > 0.15f && matchAfterMove == null && !board.beanMoving)AngleCalc();
+        if(Vector2.Distance(initialTouchPos, finalTouchPos) > 0.15f && matchAfterMove == null && !board.beanMoving) 
+            AngleCalc();
     }
 
     public void AngleCalc()
     {
         moveAngle = Mathf.Atan2(finalTouchPos.y - initialTouchPos.y, finalTouchPos.x - initialTouchPos.x) * 180 / Mathf.PI;
-        if(Vector2.Distance(transform.position, new Vector2(column, row)) < 0.15f)MoveBean();
+        if(Vector2.Distance(transform.position, new Vector2(column, row)) < 0.15f) 
+            MoveBean();
     }
 
-
-    private void Update()
+    public void MoveBean() //Mexendo o Bean ao de acordo com o angulo que o mouse arrasta
     {
 
-        float distanceToTargetPos = Vector2.Distance(transform.position, new Vector2(column, row));
-        
-
-        if (distanceToTargetPos > 0.01f)
-        {
-            transform.position = Vector2.Lerp(transform.position, new Vector2(column, row), 8 * Time.deltaTime);
-        }
-      
-        
-        if(matched)
-        {
-            sr.color = new Color(1, 1, 1, 0.2f);
-            circleCollider.enabled = false;  
-        }
-
-        FindMatch();
-    }
-
-    public void MoveBean()
-    {
         BeanScript bean = null;
 
         if (moveAngle > -45 && moveAngle <= 45 && column < board.width - 1)
@@ -137,9 +140,6 @@ public class BeanScript : MonoBehaviour
             }
 
         }
-        
-
-        
 
     }
 
@@ -147,16 +147,21 @@ public class BeanScript : MonoBehaviour
     {
         yield return new WaitForSeconds(.5f);
 
-        if(otherBean != null && !otherBean.matched && !matched)
+        if(otherBean != null)
         {
-            board.allBeans[otherBean.column, otherBean.row] = gameObject;
-            board.allBeans[column, row] = otherBean.gameObject;
+            if(!otherBean.matched && !matched)
+            {
+                board.allBeans[otherBean.column, otherBean.row] = gameObject;
+                board.allBeans[column, row] = otherBean.gameObject;
 
-            otherBean.row = row;
-            otherBean.column = column;
-            row = previousRow;
-            column  = previousColumn;
-
+                otherBean.row = row;
+                otherBean.column = column;
+                row = previousRow;
+                column = previousColumn;
+            }
+            else
+                board.DestroyMatches();
+            otherBean = null;
         }
         else
         {
@@ -182,9 +187,6 @@ public class BeanScript : MonoBehaviour
 
         board.allBeans[target.column, target.row] = gameObject;
 
-        
-
-
     }
 
 
@@ -209,33 +211,36 @@ public class BeanScript : MonoBehaviour
             GameObject leftBean = board.allBeans[column - 1, row];
             GameObject rightBean = board.allBeans[column + 1, row];
 
-            if (leftBean.tag == this.gameObject.tag && rightBean.gameObject.tag == this.tag)
+            if(leftBean != null && rightBean != null) 
             {
-                matched = true;
-                leftBean.GetComponent<BeanScript>().matched = true;
-                rightBean.GetComponent<BeanScript>().matched = true;
+                if (leftBean.tag == this.gameObject.tag && rightBean.gameObject.tag == this.tag)
+                {
+                    matched = true;
+                    leftBean.GetComponent<BeanScript>().matched = true;
+                    rightBean.GetComponent<BeanScript>().matched = true;
+                }
             }
         }
 
         if (row > 0 && row < board.height - 1)
         {
 
-            BeanScript upperBean = board.allBeans[column, row + 1].GetComponent<BeanScript>();
-            BeanScript bottomBean = board.allBeans[column, row - 1].GetComponent<BeanScript>();
+            GameObject upperBean = board.allBeans[column, row + 1];
+            GameObject bottomBean = board.allBeans[column, row - 1];
 
-            if (upperBean.tag == this.gameObject.tag && bottomBean.gameObject.tag == this.tag)
+            if (upperBean != null && bottomBean != null)
             {
-                matched = true;
-                upperBean.GetComponent<BeanScript>().matched = true;
-                bottomBean.GetComponent<BeanScript>().matched = true;
-            }
+                if (upperBean.tag == this.gameObject.tag && bottomBean.gameObject.tag == this.tag)
+                {
+                    matched = true;
+                    upperBean.GetComponent<BeanScript>().matched = true;
+                    bottomBean.GetComponent<BeanScript>().matched = true;
+                }
+            }  
         }
 
         if (matched) lastMatch = true;
 
-
     }
-
-    
 
 }
