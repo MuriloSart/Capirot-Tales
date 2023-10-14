@@ -75,4 +75,60 @@ public class Board : MonoBehaviour
         return false;
     }
 
+    public void DelayedDestroyMatches()
+    {
+        Invoke(nameof(DestroyMatches), 1f);
+    }
+
+    private void DestroyMatchesAt(int column, int row)
+    {
+        if (allBeans[column, row].GetComponent<BeanScript>().matched)
+        {
+            Destroy(allBeans[column, row]);
+            allBeans[column, row] = null;
+        }
+    }
+
+    public void DestroyMatches()
+    {
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                if (allBeans[i, j] != null)
+                {
+                    DestroyMatchesAt(i, j);
+                }
+            }
+        }
+        StartCoroutine(DecreaseRow());
+    }
+    
+    private IEnumerator DecreaseRow()
+    {
+        int nullCount = 0;
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                if (allBeans[i, j] == null)
+                {
+                    nullCount++;
+                }
+                else if (nullCount > 0)
+                {
+                    BeanScript script = allBeans[i, j].GetComponent<BeanScript>();
+                    script.row -= nullCount;
+                    script.previousRow -= nullCount;
+                    allBeans[script.column, script.row] = script.gameObject;
+                    allBeans[i, j] = null;
+                   
+
+                }
+            }
+            nullCount = 0;
+        }
+        yield return new WaitForSeconds(.4f);
+    }
+
 }

@@ -15,9 +15,9 @@ public class BeanScript : MonoBehaviour
     private Board board;
 
     [SerializeField]
-    private int column;
+    public int column;
     [SerializeField]
-    private int row;
+    public int row;
 
     public bool matched;
 
@@ -28,9 +28,9 @@ public class BeanScript : MonoBehaviour
 
     private BeanScript otherBean;
     [SerializeField]
-    private int previousColumn;
+    public int previousColumn;
     [SerializeField]
-    private int previousRow;
+    public int previousRow;
 
     IEnumerator matchAfterMove = null;
 
@@ -98,6 +98,8 @@ public class BeanScript : MonoBehaviour
 
         BeanScript bean = null;
 
+        
+
         if (moveAngle > -45 && moveAngle <= 45 && column < board.width - 1)
         {
             //Move para direita
@@ -147,16 +149,29 @@ public class BeanScript : MonoBehaviour
     {
         yield return new WaitForSeconds(.5f);
 
-        if(otherBean != null && !otherBean.matched && !matched)
+        if(otherBean != null)
         {
-            board.allBeans[otherBean.column, otherBean.row] = gameObject;
-            board.allBeans[column, row] = otherBean.gameObject;
 
-            otherBean.row = row;
-            otherBean.column = column;
-            row = previousRow;
-            column  = previousColumn;
+            if (!otherBean.matched && !matched)
+            {
 
+                board.allBeans[otherBean.column, otherBean.row] = gameObject;
+                board.allBeans[column, row] = otherBean.gameObject;
+
+                otherBean.row = row;
+                otherBean.column = column;
+                row = previousRow;
+                column = previousColumn;
+            }
+            else
+            {
+                previousColumn = column;
+                previousRow = row;
+                otherBean.previousColumn = otherBean.column;
+                otherBean.previousRow = otherBean.row;
+
+                board.DestroyMatches();
+            }
         }
         else
         {
@@ -234,7 +249,12 @@ public class BeanScript : MonoBehaviour
             }  
         }
 
-        if (matched) lastMatch = true;
+        if (matched)
+        {
+            lastMatch = true;
+            board.beanMoving = false;
+            board.DelayedDestroyMatches();
+        }
 
     }
 
