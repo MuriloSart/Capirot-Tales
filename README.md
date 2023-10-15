@@ -10,8 +10,7 @@ Objetivo: Seu objetivo é combinar gemas da mesma cor para ganhar pontos e ataca
 **Tempo Limitado**: Você tem um tempo limitado para cada nível. Tente combinar o máximo de capivaras possível antes que o tempo acabe.
 
 ## Recursos
-
-* O jogo terá:
+O jogo terá:
 - Gráficos adoráveis de capivaras que encantarão jogadores de todas as idades.
 - Diversos níveis desafiadores para testar suas habilidades de combinação.
 - Itens especiais, como bombas de capivara e combos, para tornar o jogo mais emocionante.
