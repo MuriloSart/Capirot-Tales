@@ -11,7 +11,7 @@ Objetivo: Seu objetivo é combinar gemas da mesma cor para ganhar pontos e ataca
 
 ## Recursos
 
-O jogo terá:
+* O jogo terá:
 - Gráficos adoráveis de capivaras que encantarão jogadores de todas as idades.
 - Diversos níveis desafiadores para testar suas habilidades de combinação.
 - Itens especiais, como bombas de capivara e combos, para tornar o jogo mais emocionante.
