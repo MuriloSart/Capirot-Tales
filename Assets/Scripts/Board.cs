@@ -129,6 +129,54 @@ public class Board : MonoBehaviour
             nullCount = 0;
         }
         yield return new WaitForSeconds(.4f);
+        StartCoroutine(FillBoard());
     }
 
+    private void RefillBoard()
+    {
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                if (allBeans[i, j] == null)
+                {
+                    Vector2 tempPosition = new Vector2(i, j);
+                    int beanToUse = Random.Range(0, beans.Length);
+                    GameObject piece = Instantiate(beans[beanToUse], tempPosition, Quaternion.identity);
+                    allBeans[i, j] = piece;
+                }
+            }
+        }
+    }
+
+    private bool MatchesOnBoard()
+    {
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                if (allBeans[i, j] == null)
+                {
+                    if (allBeans[i, j].GetComponent<BeanScript>().matched)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private IEnumerator FillBoard()
+    {
+        RefillBoard();
+        yield return new WaitForSeconds(.5f);
+
+        while(MatchesOnBoard())
+        {
+            yield return new WaitForSeconds(.5f);
+            DestroyMatches();
+        }
+    }
 }
