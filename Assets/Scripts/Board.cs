@@ -6,6 +6,7 @@ public class Board : MonoBehaviour
 {
     public int width;
     public int height;
+    public int offSet = 20;
     public GameObject tilePrefab;
     private BackgroundTile[,] allTiles;
     public GameObject[,] allBeans;
@@ -30,7 +31,7 @@ public class Board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                GameObject tile = Instantiate(tilePrefab, new Vector2(transform.position.x + i, transform.position.y + j), Quaternion.identity);
+                GameObject tile = Instantiate(tilePrefab, new Vector2(transform.position.x + i, transform.position.y + j + offSet), Quaternion.identity);
                 tile.name = (i + "," + j);
 
                 int maxIterations = 0;
@@ -42,6 +43,8 @@ public class Board : MonoBehaviour
                 }
 
                 GameObject bean = Instantiate(beans[beanToUse], tile.transform.position, Quaternion.identity);
+                bean.GetComponent<BeanScript>().column = i;
+                bean.GetComponent<BeanScript>().row = j;
                 bean.name = tile.name;
                 allBeans[i, j] = bean;
             }
@@ -140,10 +143,12 @@ public class Board : MonoBehaviour
             {
                 if (allBeans[i, j] == null)
                 {
-                    Vector2 tempPosition = new Vector2(i, j);
+                    Vector2 tempPosition = new Vector2(i, j + offSet);
                     int beanToUse = Random.Range(0, beans.Length);
                     GameObject piece = Instantiate(beans[beanToUse], tempPosition, Quaternion.identity);
                     allBeans[i, j] = piece;
+                    piece.GetComponent<BeanScript>().column = i;
+                    piece.GetComponent<BeanScript>().row = j;
                 }
             }
         }

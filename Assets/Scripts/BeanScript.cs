@@ -14,9 +14,7 @@ public class BeanScript : MonoBehaviour
     [SerializeField]
     private Board board;
 
-    [SerializeField]
     public int column;
-    [SerializeField]
     public int row;
 
     public bool matched;
@@ -38,15 +36,31 @@ public class BeanScript : MonoBehaviour
 
     private void Start()
     {
-        column = (int)transform.position.x;
-        row = (int)transform.position.y;
         matched = false;
-        previousColumn = column;
-        previousRow = row;
-
         board = FindObjectOfType<Board>();
         name = (int)transform.position.x + "," + (int)transform.position.y;
 
+    }
+
+    private void Update()
+    {
+
+        float distanceToTargetPos = Vector2.Distance(transform.position, new Vector2(column, row));
+
+
+        if (distanceToTargetPos > 0.01f)
+        {
+            transform.position = Vector2.Lerp(transform.position, new Vector2(column, row), 8 * Time.deltaTime);
+        }
+
+
+        if (matched)
+        {
+            sr.color = new Color(1, 1, 1, 0.2f);
+            circleCollider.enabled = false;
+        }
+
+        FindMatch();
     }
 
     private void OnMouseDown()
@@ -72,26 +86,7 @@ public class BeanScript : MonoBehaviour
     }
 
 
-    private void Update()
-    {
 
-        float distanceToTargetPos = Vector2.Distance(transform.position, new Vector2(column, row));
-        
-
-        if (distanceToTargetPos > 0.01f)
-        {
-            transform.position = Vector2.Lerp(transform.position, new Vector2(column, row), 8 * Time.deltaTime);
-        }
-      
-        
-        if(matched)
-        {
-            sr.color = new Color(1, 1, 1, 0.2f);
-            circleCollider.enabled = false;  
-        }
-
-        FindMatch();
-    }
 
     public void MoveBean() //Mexendo o Bean ao de acordo com o angulo que o mouse arrasta
     {
@@ -104,22 +99,30 @@ public class BeanScript : MonoBehaviour
         {
             //Move para direita
             bean = board.allBeans[column + 1, row].gameObject.GetComponent<BeanScript>();
+            previousColumn = column;
+            previousRow = row;
         }
         else if (moveAngle < -45 && moveAngle >= -135 && row > 0)
         {
             //Move para baixo
             bean = board.allBeans[column, row - 1].gameObject.GetComponent<BeanScript>();
+            previousColumn = column;
+            previousRow = row;
 
         }
         else if (moveAngle <= 135 && moveAngle > 45 && row < board.height - 1)
         {
             //Move para cima
             bean = board.allBeans[column, row + 1].gameObject.GetComponent<BeanScript>();
+            previousColumn = column;
+            previousRow = row;
         }
         else if (moveAngle > 135 || moveAngle <= -135 && column > 0)
         {
             //Move para a esquerda
             bean = board.allBeans[column - 1, row].gameObject.GetComponent<BeanScript>();
+            previousColumn = column;
+            previousRow = row;
         }
 
         if (bean != null && !bean.matched)
