@@ -2,8 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GameState
+{
+    wait,
+    move
+}
+
 public class Board : MonoBehaviour
 {
+    public GameState state = GameState.move;
+
     public int width;
     public int height;
     public int offSet = 20;
@@ -183,5 +191,7 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(.5f);
             DestroyMatches();
         }
+        yield return new WaitForSeconds(.5f);
+        state = GameState.move;
     }
 }

@@ -65,17 +65,24 @@ public class BeanScript : MonoBehaviour
 
     private void OnMouseDown()
     {
-        initialTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        board = FindObjectOfType<Board>();
-       
+        if (board.state == GameState.move)
+        {
+            initialTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        }
     }
 
     private void OnMouseUp()
     {
-        finalTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        // Só efetua o movimento caso a distância seja maior do que 0.15 unidades
-        if(Vector2.Distance(initialTouchPos, finalTouchPos) > 0.15f && matchAfterMove == null && !board.beanMoving) 
-            AngleCalc();
+        if (board.state == GameState.move)
+        { 
+            finalTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            // Só efetua o movimento caso a distância seja maior do que 0.15 unidades
+            if(Vector2.Distance(initialTouchPos, finalTouchPos) > 0.15f && matchAfterMove == null && !board.beanMoving) 
+                AngleCalc();
+        }
+        else
+            board.state = GameState.move;
     }
 
     public void AngleCalc()
@@ -83,6 +90,7 @@ public class BeanScript : MonoBehaviour
         moveAngle = Mathf.Atan2(finalTouchPos.y - initialTouchPos.y, finalTouchPos.x - initialTouchPos.x) * 180 / Mathf.PI;
         if(Vector2.Distance(transform.position, new Vector2(column, row)) < 0.15f) 
             MoveBean();
+        board.state = GameState.wait;
     }
 
 
@@ -165,6 +173,9 @@ public class BeanScript : MonoBehaviour
                 otherBean.column = column;
                 row = previousRow;
                 column = previousColumn;
+
+                yield return WaitForSeconds(.5f);
+                board.state = GameState.move;
             }
             else
             {
@@ -182,7 +193,6 @@ public class BeanScript : MonoBehaviour
             previousRow = row;
             otherBean.previousColumn = otherBean.column;
             otherBean.previousRow = otherBean.row;
-
         }
         otherBean = null;
         matchAfterMove = null;
