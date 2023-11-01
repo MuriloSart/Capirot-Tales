@@ -168,13 +168,7 @@ public class Board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (allBeans[i, j] == null)
-                {
-                    if (allBeans[i, j].GetComponent<BeanScript>().matched)
-                    {
-                        return true;
-                    }
-                }
+                return allBeans[i, j]?.GetComponent<BeanScript>()?.matched ?? true;
             }
         }
 

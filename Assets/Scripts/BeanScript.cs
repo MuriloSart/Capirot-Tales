@@ -174,7 +174,7 @@ public class BeanScript : MonoBehaviour
                 row = previousRow;
                 column = previousColumn;
 
-                yield return WaitForSeconds(.5f);
+                yield return new WaitForSeconds(.5f);
                 board.state = GameState.move;
             }
             else
